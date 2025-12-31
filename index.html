@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燒杯與滴管的愛情修煉 - 默契大測驗</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background: linear-gradient(135deg, #fff1f2 0%, #fce7f3 50%, #fff1f2 100%);
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .option-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-width: 3px; }
+        .option-btn:active { transform: scale(0.97); }
+        .floating-heart { position: fixed; z-index: -1; opacity: 0.15; animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .shake { animation: shake 0.4s ease-in-out; }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- 背景裝飾 -->
+    <i class="fas fa-heart floating-heart text-pink-400 text-9xl" style="top: 10%; left: 5%;"></i>
+    <i class="fas fa-flask floating-heart text-pink-300 text-7xl" style="top: 60%; right: 5%; animation-delay: 2s;"></i>
+
+    <!-- 1. 歡迎首頁 -->
+    <div id="page-home" class="min-h-screen flex items-center justify-center p-6">
+        <div class="glass p-10 rounded-[3rem] shadow-2xl border-4 border-white text-center max-w-sm w-full">
+            <div class="mb-6 inline-flex bg-pink-500 w-24 h-24 rounded-full items-center justify-center shadow-inner">
+                <i class="fas fa-vial text-white text-5xl"></i>
+            </div>
+            <h1 class="text-3xl font-black text-pink-700 mb-2">愛情修煉大測驗</h1>
+            <p class="text-pink-400 mb-10 font-bold">—— 燒杯與滴管的專屬回憶 ——</p>
+            
+            <div class="space-y-4">
+                <button onclick="initQuiz('female')" class="w-full bg-pink-500 hover:bg-pink-600 text-white p-5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3">
+                    <span class="font-bold text-lg">我是 LJY </span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button onclick="initQuiz('male')" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3">
+                    <span class="font-bold text-lg">我是 來財 </span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <p class="mt-8 text-gray-400 text-[10px]">基於 2025/11/14 聊天記錄改編</p>
+        </div>
+    </div>
+
+    <!-- 2. 測驗主介面 -->
+    <div id="page-quiz" class="hidden min-h-screen flex flex-col">
+        <nav class="bg-white/80 backdrop-blur-md p-4 flex justify-between items-center sticky top-0 z-50 border-b-2 border-pink-50">
+            <button onclick="location.reload()" class="text-pink-500 font-black px-3 py-1">
+                <i class="fas fa-times mr-1"></i> 不測了
+            </button>
+            <div id="role-indicator" class="font-black text-gray-700 bg-pink-50 px-4 py-1 rounded-full text-sm"></div>
+            <div class="text-pink-600 font-black"><span id="curr-q">1</span> / 20</div>
+        </nav>
+
+        <div id="q-box" class="flex-1 flex flex-col items-center justify-center p-6 max-w-xl mx-auto w-full">
+            <!-- 題目動態插入 -->
+        </div>
+
+        <div class="p-4 glass border-t flex items-center gap-4">
+            <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div id="prog-bar" class="h-full bg-pink-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="font-black text-pink-600">得分: <span id="score-view">0</span></div>
+        </div>
+    </div>
+
+    <!-- 3. 結算介面 -->
+    <div id="page-result" class="hidden min-h-screen flex items-center justify-center p-6">
+        <div class="glass p-12 rounded-[4rem] shadow-2xl border-4 border-white text-center max-w-sm w-full">
+            <h2 class="text-2xl font-black text-gray-700">最終默契值</h2>
+            <div id="result-score" class="text-8xl font-black text-pink-500 my-8">0</div>
+            <p id="result-text" class="text-gray-500 font-bold mb-10 leading-relaxed"></p>
+            <button onclick="location.reload()" class="w-full bg-pink-500 text-white py-5 rounded-3xl font-black shadow-xl hover:bg-pink-600 transition-all">再修煉一次</button>
+        </div>
+    </div>
+
+    <script>
+        const femaleData = [
+            { q: "當來財在 10:02 狂發語音時，你回擊說他是什麼？", opts: ["小垃圾", "滴管", "沒禮貌", "臭豬頭"], ans: 1, note: "2025/11/14 10:03 你霸氣宣告：『你是滴管』。" },
+            { q: "關於早餐點餐，除了山豬肉吐司，你還點了什麼「蛋餅」？", opts: ["起司蛋餅", "原味蛋餅", "蔬菜蛋餅", "玉米蛋餅"], ans: 2, note: "你點的是健康滿分的『蔬菜蛋餅』。" },
+            { q: "來財在 10:04 傳了語音，你下一秒給了他幾分？", opts: ["100分", "60分", "零分", "負一百分"], ans: 2, note: "你毫不留情回了：『零分』。" },
+            { q: "來財建立相簿的時間是 11/14 的幾點？", opts: ["01:20", "03:31", "13:46", "20:18"], ans: 1, note: "那是個半夜三點的神奇時刻。" },
+            { q: "你說你要吃早餐時，你宣稱你的進食速度是？", opts: ["慢慢品嚐", "優雅進餐", "光速進食", "不想吃了"], ans: 2, note: "『我光速進食』—— LJY。" },
+            { q: "11/15 凌晨那通超級長電話講了多久？", opts: ["43 分鐘", "1 小時 38 分", "15 分鐘", "3 分鐘"], ans: 1, note: "精確紀錄是 1:38:39，真的很能聊。" },
+            { q: "凌晨通話斷掉後，你傳貼圖問了他哪句話？", opts: ["睡著了？", "為什麼掛掉", "人勒？", "斷線喔？"], ans: 1, note: "02:15 那句充滿怨念的『為什麼掛掉』。" },
+            { q: "當來財在那邊急的時候，你叫他？", opts: ["別吵啦", "你先別急", "等一下", "鼻要"], ans: 1, note: "你回他：『你先別急』，然後繼續喊餓。" },
+            { q: "點餐時你配的飲料是什麼？", opts: ["奶茶", "豆漿", "美式", "紅茶"], ans: 3, note: "『我吃紅茶...』，看來是紅茶黨。" },
+            { q: "這份聊天記錄中，來財第一次對你說的話是？", opts: ["哈囉", "怎了", "在嗎", "早安"], ans: 1, note: "13:46 訊息：『怎了』。" },
+            { q: "來財在 11/15 00:36 沒接電話後霸氣下令什麼？", opts: ["快出來", "打給我", "想我嗎", "去睡覺"], ans: 1, note: "他直接打字：『打給我』。" },
+            { q: "你在 10:10 傳訊息說你目前的生理狀態是？", opts: ["很想睡", "想上廁所", "我好餓哦", "想喝水"], ans: 2, note: "重複了兩次：『我好餓哦』。" },
+            { q: "11/14 傍晚 18:17 那通電話講了多久？", opts: ["8:09", "43:13", "0:43", "3:29"], ans: 1, note: "這通也是超級長長長。" },
+            { q: "當來財傳語音騷擾你時，你回了什麼可愛的詞拒絕？", opts: ["不要", "鼻要", "等下", "煩死"], ans: 1, note: "你說：『鼻要，我要現在吃』。" },
+            { q: "來財叫你「燒杯」前，他先傳了？", opts: ["一張照片", "很多個語音", "一個貼圖", "一段文字"], ans: 1, note: "那一整排都是 [語音訊息]。" },
+            { q: "來財最後傳「明天再...」是幾點？", opts: ["00:36", "02:15", "02:17", "03:31"], ans: 2, note: "凌晨 02:17 斷訊。" },
+            { q: "你建立或新增相簿項目的時間是？", opts: ["03:31", "03:39", "10:18", "13:46"], ans: 1, note: "來財建相簿後，你 03:39 新增了照片。" },
+            { q: "11/15 00:19 的通話時間是多久？", opts: ["0:11", "0:43", "3:29", "8:09"], ans: 0, note: "這通只是閃過，只有 11 秒。" },
+            { q: "你們最常使用的溝通方式是？", opts: ["打字", "貼圖", "通話", "語音"], ans: 2, note: "看這滿屏的『通話時間』就知道了。" },
+            { q: "最後一題：你覺得誰才是真正的滴管？", opts: ["來財", "還是來財"], ans: 0, note: "這題沒懸念吧！" }
+        ];
+
+        const maleData = [
+            { q: "LJY 說你是「滴管」的原因是因為你先叫她？", opts: ["大笨蛋", "燒杯", "量筒", "酒精燈"], ans: 1, note: "你叫她燒杯，她才反擊你是滴管。" },
+            { q: "LJY 在 10:01 跟你說她正在幹嘛？", opts: ["在洗澡", "在點餐", "在化妝", "在發呆"], ans: 1, note: "她在點她的山豬肉吐司。" },
+            { q: "當你 10:04 傳語音，她給了你幾分？", opts: ["80分", "零分", "滿分", "沒分數"], ans: 1, note: "她無情給了『零分』，請反省。" },
+            { q: "11/15 凌晨電話掛掉後，LJY 怨念地問了哪句？", opts: ["睡了喔？", "明天見", "為什麼掛掉", "鼻要"], ans: 2, note: "她傳了『為什麼掛掉』加貼圖。" },
+            { q: "LJY 宣稱她吃早餐的速度是？", opts: ["慢慢吃", "不吃了", "光速進食", "等下吃"], ans: 2, note: "『我光速進食』。" },
+            { q: "你 09:54 一直傳語音時，她怎麼撒嬌拒絕？", opts: ["不要", "鼻要", "閉嘴", "不理你"], ans: 1, note: "她說：『鼻要，我要現在吃』。" },
+            { q: "11/15 凌晨你沒接到電話，回傳了哪三個字？", opts: ["想我嗎", "打給我", "快睡覺", "人勒"], ans: 1, note: "你霸氣下令：『打給我』。" },
+            { q: "你們這兩天最長的通話時間是？", opts: ["43:13", "1:38:39", "8:09", "15:53"], ans: 1, note: "1小時38分，真的是聊爆。" },
+            { q: "LJY 的山豬肉吐司配什麼飲料？", opts: ["奶茶", "豆漿", "紅茶", "綠茶"], ans: 2, note: "她吃『紅茶』。" },
+            { q: "你在 11/14 03:31 建立了什麼？", opts: ["記事本", "群組", "相簿", "回憶"], ans: 2, note: "你建立了相簿。" },
+            { q: "LJY 在 10:10 說了什麼好幾次？", opts: ["想你", "愛你", "我好餓哦", "好睏"], ans: 2, note: "她一直喊：『我好餓哦』。" },
+            { q: "你最後傳「明天再...」是幾點幾分？", opts: ["02:15", "02:17", "00:36", "03:31"], ans: 1, note: "凌晨兩點十七分，累癱了。" },
+            { q: "11/14 18:17 那通 43 分鐘的電話是誰發起的？", opts: ["你", "LJY"], ans: 0, note: "紀錄顯示是你主動打給燒杯的。" },
+            { q: "當 LJY 叫你「先別急」，是因為她在等？", opts: ["你回覆", "早餐", "洗澡", "睡覺"], ans: 1, note: "她在等她的光速早餐。" },
+            { q: "11/14 13:46 你敲她的第一句話是？", opts: ["早安", "怎了", "想我嗎", "在幹嘛"], ans: 1, note: "『怎了』。" },
+            { q: "LJY 的蛋餅口味是什麼？", opts: ["原味", "蔬菜", "起司", "鮪魚"], ans: 1, note: "是『蔬菜蛋餅』。" },
+            { q: "11/15 凌晨 00:35 LJY 第一句開場白？", opts: ["在嗎", "想你", "聽得到嗎", "嘿"], ans: 2, note: "她問：『聽得到嗎』。" },
+            { q: "你連續傳兩個貼圖的時間是？", opts: ["03:29", "10:01", "13:46", "20:18"], ans: 0, note: "凌晨三點二十九分。" },
+            { q: "這份測驗完成後，你要對燒杯說什麼？", opts: ["我錯了", "我是滴管", "再打一通電話", "以上皆是"], ans: 3, note: "這是求生欲測試！" },
+            { q: "你覺得燒杯可愛嗎？", opts: ["普通", "超可愛"], ans: 1, note: "這題選錯就不用下課了。" }
+        ];
+
+        let state = {
+            role: '',
+            questions: [],
+            curr: 0,
+            score: 0,
+            answered: false
+        };
+
+        function initQuiz(role) {
+            state.role = role;
+            state.questions = role === 'female' ? femaleData : maleData;
+            state.curr = 0;
+            state.score = 0;
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-quiz').classList.remove('hidden');
+            document.getElementById('role-indicator').innerText = role === 'female' ? '燒杯專場' : '滴管專場';
+            renderQ();
+        }
+
+        function renderQ() {
+            state.answered = false;
+            const q = state.questions[state.curr];
+            document.getElementById('curr-q').innerText = state.curr + 1;
+            document.getElementById('prog-bar').style.width = `${(state.curr / 20) * 100}%`;
+            document.getElementById('score-view').innerText = state.score;
+            
+            const container = document.getElementById('q-box');
+            container.innerHTML = `
+                <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-b-8 border-pink-100 relative">
+                        <i class="fas fa-quote-left text-pink-100 text-6xl absolute top-4 left-4"></i>
+                        <h3 class="text-xl font-black text-gray-800 mb-8 relative z-10 leading-relaxed">${q.q}</h3>
+                        <div class="grid gap-3 relative z-10">
+                            ${q.opts.map((o, i) => `
+                                <button onclick="checkAns(${i})" id="opt-${i}" class="option-btn w-full text-left p-4 rounded-2xl bg-gray-50 border-gray-100 font-bold hover:bg-pink-50 hover:border-pink-200">
+                                    ${o}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="feedback" class="hidden mt-6 p-4 rounded-2xl text-sm font-bold animate-in zoom-in duration-300"></div>
+                        <button id="btn-next" onclick="nextQ()" class="hidden w-full mt-6 bg-gray-800 text-white py-4 rounded-2xl font-black shadow-lg">下一題 <i class="fas fa-arrow-right ml-1"></i></button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkAns(idx) {
+            if (state.answered) return;
+            state.answered = true;
+            
+            const q = state.questions[state.curr];
+            const isCorrect = idx === q.ans;
+            const card = document.querySelector('#q-box > div > div');
+
+            if (isCorrect) {
+                state.score += 5;
+                // 答對時的小慶祝
+                confetti({ particleCount: 30, spread: 60, origin: { y: 0.7 }, colors: ['#ec4899', '#f472b6'], disableForReducedMotion: true });
+            } else {
+                // 答錯時的震動回饋
+                card.classList.add('shake');
+                setTimeout(() => card.classList.remove('shake'), 400);
+            }
+
+            q.opts.forEach((_, i) => {
+                const btn = document.getElementById(`opt-${i}`);
+                btn.disabled = true;
+                if (i === q.ans) {
+                    btn.className = "option-btn w-full text-left p-4 rounded-2xl bg-green-50 border-green-500 text-green-700 font-black";
+                } else if (i === idx) {
+                    btn.className = "option-btn w-full text-left p-4 rounded-2xl bg-red-50 border-red-500 text-red-700 font-black";
+                } else {
+                    btn.className = "option-btn w-full text-left p-4 rounded-2xl bg-gray-50 border-transparent text-gray-300 opacity-50";
+                }
+            });
+
+            const fb = document.getElementById('feedback');
+            fb.classList.remove('hidden');
+            fb.className = `mt-6 p-4 rounded-2xl text-sm font-bold ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            fb.innerHTML = `<i class="fas ${isCorrect ? 'fa-check-circle' : 'fa-times-circle'} mr-2"></i> ${q.note}`;
+            
+            document.getElementById('btn-next').classList.remove('hidden');
+            document.getElementById('score-view').innerText = state.score;
+        }
+
+        function nextQ() {
+            if (state.curr < 19) {
+                state.curr++;
+                renderQ();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('page-quiz').classList.add('hidden');
+            document.getElementById('page-result').classList.remove('hidden');
+            document.getElementById('result-score').innerText = state.score;
+            
+            // 結算時的慶祝動畫 (若分數不錯)
+            if (state.score >= 60) {
+                const duration = 3000;
+                const end = Date.now() + duration;
+                (function frame() {
+                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ec4899', '#fbcfe8'] });
+                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ec4899', '#fbcfe8'] });
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }
+
+            let txt = "";
+            if (state.score === 100) txt = "完美！你們根本是同一個大腦，滴管與燒杯永遠不分離！";
+            else if (state.score >= 80) txt = "默契超好！看來你們真的很愛打電話講一個半小時。";
+            else if (state.score >= 60) txt = "還行，但有些細節要再去翻一下對話記錄喔！";
+            else txt = "零分！罰你們現在立刻互打一通長電話複習回憶！";
+            document.getElementById('result-text').innerText = txt;
+        }
+    </script>
+</body>
+</html>

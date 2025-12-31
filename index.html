@@ -3,255 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>燒杯與滴管的愛情修煉 - 默契大測驗</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <title>🎀 戀愛大考驗 🎀</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            background: linear-gradient(135deg, #fff1f2 0%, #fce7f3 50%, #fff1f2 100%);
-            margin: 0;
-            overflow-x: hidden;
-            min-height: 100vh;
+        /* 引入黑體 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap');
+
+        :root {
+            --melo-pink: #ffafcc;
+            --cinna-blue: #bde0fe;
+            --purin-yellow: #ffedaf;
+            --text-color: #5c4d4d;
+            --bg-soft: #fff5f8;
         }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
-        .option-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-width: 3px; }
-        .option-btn:active { transform: scale(0.97); }
-        .floating-heart { position: fixed; z-index: -1; opacity: 0.15; animation: float 6s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        .shake { animation: shake 0.4s ease-in-out; }
+
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0; height: 100vh;
+            background-color: var(--bg-soft);
+            background-image: radial-gradient(circle, #fff 20%, transparent 20%), radial-gradient(circle, #fff 20%, transparent 20%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        /* 漂浮裝飾 */
+        .deco-obj {
+            position: absolute; pointer-events: none; z-index: 1;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.05));
+            animation: float 5s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(10px, -20px) rotate(10deg); }
+        }
+
+        /* 橫向手帳容器 */
+        .diary-container {
+            width: 880px; height: 520px;
+            background: white;
+            border: 10px solid white;
+            border-radius: 60px;
+            box-shadow: 0 25px 0px #f8dce4, 0 40px 100px rgba(255,175,204,0.3);
+            display: flex; position: relative; z-index: 10;
+            overflow: hidden;
+        }
+
+        /* 左側欄：角色舞台 */
+        .side-stage {
+            width: 32%; background: linear-gradient(180deg, var(--cinna-blue), #e2f1ff);
+            border-right: 6px dashed white;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; position: relative;
+        }
+
+        .char-circle {
+            width: 170px; height: 170px; background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 90px; border: 8px solid var(--melo-pink);
+            box-shadow: 0 15px 0 rgba(0,0,0,0.05);
+            animation: jump 2s infinite ease-in-out;
+        }
+        @keyframes jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .side-label {
+            margin-top: 30px; font-weight: 900; font-size: 26px; color: white;
+            text-shadow: 2px 2px 0px var(--melo-pink), 4px 4px 0px rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+        }
+
+        /* 右側欄：互動區 */
+        .main-stage { flex: 1; padding: 40px; display: flex; flex-direction: column; position: relative; background: #fffcfd; }
+
+        /* 進度條：雲朵流星 */
+        .prog-container { width: 100%; height: 20px; background: #f0f0f0; border-radius: 50px; margin-bottom: 30px; position: relative; }
+        .prog-bar { 
+            height: 100%; width: 0%; border-radius: 50px;
+            background: linear-gradient(90deg, #ffafcc, #bde0fe, #ffafcc);
+            background-size: 200% 100%; animation: flow 2s linear infinite;
+            transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes flow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        .prog-icon { position: absolute; top: -15px; left: 0%; transform: translateX(-50%); font-size: 30px; transition: 0.6s; }
+
+        /* 題目區 */
+        .q-box {
+            background: var(--bg-soft); padding: 25px; border-radius: 35px;
+            border: 4px solid var(--cinna-blue); font-size: 22px; font-weight: 700;
+            color: var(--text-color); text-align: center; margin-bottom: 25px;
+            box-shadow: 0 8px 0 var(--cinna-blue);
+        }
+
+        /* 選項區 */
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .opt-item {
+            background: white; padding: 15px; border-radius: 20px;
+            border: 3px solid #eee; cursor: pointer; transition: 0.2s;
+            font-size: 16px; font-weight: 700; color: var(--text-color);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 0 #eee;
+        }
+        .opt-item:hover { transform: translateY(-3px); border-color: var(--melo-pink); box-shadow: 0 8px 0 var(--melo-pink); }
+        .opt-item:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--melo-pink); }
+
+        /* 答題回饋 */
+        .correct { background: #c1f2c1 !important; border-color: #77dd77 !important; color: #2d5a2d !important; animation: pop 0.4s; }
+        .wrong { background: #ffcfd2 !important; border-color: #ff8fa3 !important; color: #803030 !important; animation: shake 0.4s; }
+
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* 按鈕 */
+        .btn-next {
+            margin-top: auto; align-self: center; padding: 12px 50px;
+            background: var(--melo-pink); color: white; border: none;
+            border-radius: 50px; font-size: 20px; font-weight: 900;
+            cursor: pointer; box-shadow: 0 6px 0 #e88dad; transition: 0.2s;
+            visibility: hidden;
+        }
+        .btn-next:active { transform: translateY(4px); box-shadow: 0 2px 0 #e88dad; }
+
+        /* 首頁與結果 */
+        .scene { display: none; flex-direction: column; height: 100%; animation: slideUp 0.5s ease; }
+        .active { display: flex; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .start-btn {
+            padding: 18px 40px; border-radius: 50px; border: none; color: white;
+            font-size: 20px; font-weight: 900; cursor: pointer; margin: 10px;
+            transition: 0.3s;
+        }
+        .btn-ljy { background: var(--melo-pink); box-shadow: 0 8px 0 #e88dad; }
+        .btn-lc { background: var(--cinna-blue); box-shadow: 0 8px 0 #a2cceb; }
+
+        /* 返回首頁按鈕 */
+        .btn-home {
+            position: absolute; top: 20px; left: 20px; z-index: 50;
+            padding: 8px 20px; border-radius: 30px;
+            background: rgba(255,255,255,0.9); border: 3px solid var(--melo-pink);
+            color: var(--melo-pink); font-size: 16px; font-weight: 900; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1); transition: 0.2s;
+        }
+        .btn-home:hover { transform: scale(1.1) rotate(-10deg); }
+        .btn-home:active { transform: scale(0.95); }
     </style>
 </head>
-<body class="text-gray-800">
+<body>
 
-    <!-- 背景裝飾 -->
-    <i class="fas fa-heart floating-heart text-pink-400 text-9xl" style="top: 10%; left: 5%;"></i>
-    <i class="fas fa-flask floating-heart text-pink-300 text-7xl" style="top: 60%; right: 5%; animation-delay: 2s;"></i>
+    <div class="deco-obj" style="top:10%; left:8%; font-size:40px;">☁️</div>
+    <div class="deco-obj" style="top:25%; right:10%; font-size:35px; animation-delay: 1s;">🎀</div>
+    <div class="deco-obj" style="bottom:15%; left:12%; font-size:45px; animation-delay: 2s;">🍓</div>
+    <div class="deco-obj" style="bottom:10%; right:15%; font-size:40px; animation-delay: 3s;">🍭</div>
 
-    <!-- 1. 歡迎首頁 -->
-    <div id="page-home" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass p-10 rounded-[3rem] shadow-2xl border-4 border-white text-center max-w-sm w-full">
-            <div class="mb-6 inline-flex bg-pink-500 w-24 h-24 rounded-full items-center justify-center shadow-inner">
-                <i class="fas fa-vial text-white text-5xl"></i>
+    <div class="diary-container">
+        <button class="btn-home" onclick="location.reload()">回首頁</button>
+        <div class="side-stage">
+            <div class="char-circle" id="side-emoji">📖</div>
+            <div class="side-label">SWEET DIARY</div>
+            <div id="badge-wall" style="margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <span style="opacity: 0.2; font-size: 24px;">🎨</span>
+                <span style="opacity: 0.2; font-size: 24px;">🧸</span>
+                <span style="opacity: 0.2; font-size: 24px;">💎</span>
+                <span style="opacity: 0.2; font-size: 24px;">🍬</span>
+                <span style="opacity: 0.2; font-size: 24px;">🥛</span>
+                <span style="opacity: 0.2; font-size: 24px;">🍮</span>
             </div>
-            <h1 class="text-3xl font-black text-pink-700 mb-2">愛情修煉大測驗</h1>
-            <p class="text-pink-400 mb-10 font-bold">—— 燒杯與滴管的專屬回憶 ——</p>
-            
-            <div class="space-y-4">
-                <button onclick="initQuiz('female')" class="w-full bg-pink-500 hover:bg-pink-600 text-white p-5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3">
-                    <span class="font-bold text-lg">我是 LJY </span>
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                <button onclick="initQuiz('male')" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3">
-                    <span class="font-bold text-lg">我是 來財 </span>
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-            <p class="mt-8 text-gray-400 text-[10px]">基於 2025/11/14 聊天記錄改編</p>
-        </div>
-    </div>
-
-    <!-- 2. 測驗主介面 -->
-    <div id="page-quiz" class="hidden min-h-screen flex flex-col">
-        <nav class="bg-white/80 backdrop-blur-md p-4 flex justify-between items-center sticky top-0 z-50 border-b-2 border-pink-50">
-            <button onclick="location.reload()" class="text-pink-500 font-black px-3 py-1">
-                <i class="fas fa-times mr-1"></i> 不測了
-            </button>
-            <div id="role-indicator" class="font-black text-gray-700 bg-pink-50 px-4 py-1 rounded-full text-sm"></div>
-            <div class="text-pink-600 font-black"><span id="curr-q">1</span> / 20</div>
-        </nav>
-
-        <div id="q-box" class="flex-1 flex flex-col items-center justify-center p-6 max-w-xl mx-auto w-full">
-            <!-- 題目動態插入 -->
         </div>
 
-        <div class="p-4 glass border-t flex items-center gap-4">
-            <div class="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div id="prog-bar" class="h-full bg-pink-500 transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <div class="font-black text-pink-600">得分: <span id="score-view">0</span></div>
-        </div>
-    </div>
-
-    <!-- 3. 結算介面 -->
-    <div id="page-result" class="hidden min-h-screen flex items-center justify-center p-6">
-        <div class="glass p-12 rounded-[4rem] shadow-2xl border-4 border-white text-center max-w-sm w-full">
-            <h2 class="text-2xl font-black text-gray-700">最終默契值</h2>
-            <div id="result-score" class="text-8xl font-black text-pink-500 my-8">0</div>
-            <p id="result-text" class="text-gray-500 font-bold mb-10 leading-relaxed"></p>
-            <button onclick="location.reload()" class="w-full bg-pink-500 text-white py-5 rounded-3xl font-black shadow-xl hover:bg-pink-600 transition-all">再修煉一次</button>
-        </div>
-    </div>
-
-    <script>
-        const femaleData = [
-            { q: "當來財在 10:02 狂發語音時，你回擊說他是什麼？", opts: ["小垃圾", "滴管", "沒禮貌", "臭豬頭"], ans: 1, note: "2025/11/14 10:03 你霸氣宣告：『你是滴管』。" },
-            { q: "關於早餐點餐，除了山豬肉吐司，你還點了什麼「蛋餅」？", opts: ["起司蛋餅", "原味蛋餅", "蔬菜蛋餅", "玉米蛋餅"], ans: 2, note: "你點的是健康滿分的『蔬菜蛋餅』。" },
-            { q: "來財在 10:04 傳了語音，你下一秒給了他幾分？", opts: ["100分", "60分", "零分", "負一百分"], ans: 2, note: "你毫不留情回了：『零分』。" },
-            { q: "來財建立相簿的時間是 11/14 的幾點？", opts: ["01:20", "03:31", "13:46", "20:18"], ans: 1, note: "那是個半夜三點的神奇時刻。" },
-            { q: "你說你要吃早餐時，你宣稱你的進食速度是？", opts: ["慢慢品嚐", "優雅進餐", "光速進食", "不想吃了"], ans: 2, note: "『我光速進食』—— LJY。" },
-            { q: "11/15 凌晨那通超級長電話講了多久？", opts: ["43 分鐘", "1 小時 38 分", "15 分鐘", "3 分鐘"], ans: 1, note: "精確紀錄是 1:38:39，真的很能聊。" },
-            { q: "凌晨通話斷掉後，你傳貼圖問了他哪句話？", opts: ["睡著了？", "為什麼掛掉", "人勒？", "斷線喔？"], ans: 1, note: "02:15 那句充滿怨念的『為什麼掛掉』。" },
-            { q: "當來財在那邊急的時候，你叫他？", opts: ["別吵啦", "你先別急", "等一下", "鼻要"], ans: 1, note: "你回他：『你先別急』，然後繼續喊餓。" },
-            { q: "點餐時你配的飲料是什麼？", opts: ["奶茶", "豆漿", "美式", "紅茶"], ans: 3, note: "『我吃紅茶...』，看來是紅茶黨。" },
-            { q: "這份聊天記錄中，來財第一次對你說的話是？", opts: ["哈囉", "怎了", "在嗎", "早安"], ans: 1, note: "13:46 訊息：『怎了』。" },
-            { q: "來財在 11/15 00:36 沒接電話後霸氣下令什麼？", opts: ["快出來", "打給我", "想我嗎", "去睡覺"], ans: 1, note: "他直接打字：『打給我』。" },
-            { q: "你在 10:10 傳訊息說你目前的生理狀態是？", opts: ["很想睡", "想上廁所", "我好餓哦", "想喝水"], ans: 2, note: "重複了兩次：『我好餓哦』。" },
-            { q: "11/14 傍晚 18:17 那通電話講了多久？", opts: ["8:09", "43:13", "0:43", "3:29"], ans: 1, note: "這通也是超級長長長。" },
-            { q: "當來財傳語音騷擾你時，你回了什麼可愛的詞拒絕？", opts: ["不要", "鼻要", "等下", "煩死"], ans: 1, note: "你說：『鼻要，我要現在吃』。" },
-            { q: "來財叫你「燒杯」前，他先傳了？", opts: ["一張照片", "很多個語音", "一個貼圖", "一段文字"], ans: 1, note: "那一整排都是 [語音訊息]。" },
-            { q: "來財最後傳「明天再...」是幾點？", opts: ["00:36", "02:15", "02:17", "03:31"], ans: 2, note: "凌晨 02:17 斷訊。" },
-            { q: "你建立或新增相簿項目的時間是？", opts: ["03:31", "03:39", "10:18", "13:46"], ans: 1, note: "來財建相簿後，你 03:39 新增了照片。" },
-            { q: "11/15 00:19 的通話時間是多久？", opts: ["0:11", "0:43", "3:29", "8:09"], ans: 0, note: "這通只是閃過，只有 11 秒。" },
-            { q: "你們最常使用的溝通方式是？", opts: ["打字", "貼圖", "通話", "語音"], ans: 2, note: "看這滿屏的『通話時間』就知道了。" },
-            { q: "最後一題：你覺得誰才是真正的滴管？", opts: ["來財", "還是來財"], ans: 0, note: "這題沒懸念吧！" }
-        ];
-
-        const maleData = [
-            { q: "LJY 說你是「滴管」的原因是因為你先叫她？", opts: ["大笨蛋", "燒杯", "量筒", "酒精燈"], ans: 1, note: "你叫她燒杯，她才反擊你是滴管。" },
-            { q: "LJY 在 10:01 跟你說她正在幹嘛？", opts: ["在洗澡", "在點餐", "在化妝", "在發呆"], ans: 1, note: "她在點她的山豬肉吐司。" },
-            { q: "當你 10:04 傳語音，她給了你幾分？", opts: ["80分", "零分", "滿分", "沒分數"], ans: 1, note: "她無情給了『零分』，請反省。" },
-            { q: "11/15 凌晨電話掛掉後，LJY 怨念地問了哪句？", opts: ["睡了喔？", "明天見", "為什麼掛掉", "鼻要"], ans: 2, note: "她傳了『為什麼掛掉』加貼圖。" },
-            { q: "LJY 宣稱她吃早餐的速度是？", opts: ["慢慢吃", "不吃了", "光速進食", "等下吃"], ans: 2, note: "『我光速進食』。" },
-            { q: "你 09:54 一直傳語音時，她怎麼撒嬌拒絕？", opts: ["不要", "鼻要", "閉嘴", "不理你"], ans: 1, note: "她說：『鼻要，我要現在吃』。" },
-            { q: "11/15 凌晨你沒接到電話，回傳了哪三個字？", opts: ["想我嗎", "打給我", "快睡覺", "人勒"], ans: 1, note: "你霸氣下令：『打給我』。" },
-            { q: "你們這兩天最長的通話時間是？", opts: ["43:13", "1:38:39", "8:09", "15:53"], ans: 1, note: "1小時38分，真的是聊爆。" },
-            { q: "LJY 的山豬肉吐司配什麼飲料？", opts: ["奶茶", "豆漿", "紅茶", "綠茶"], ans: 2, note: "她吃『紅茶』。" },
-            { q: "你在 11/14 03:31 建立了什麼？", opts: ["記事本", "群組", "相簿", "回憶"], ans: 2, note: "你建立了相簿。" },
-            { q: "LJY 在 10:10 說了什麼好幾次？", opts: ["想你", "愛你", "我好餓哦", "好睏"], ans: 2, note: "她一直喊：『我好餓哦』。" },
-            { q: "你最後傳「明天再...」是幾點幾分？", opts: ["02:15", "02:17", "00:36", "03:31"], ans: 1, note: "凌晨兩點十七分，累癱了。" },
-            { q: "11/14 18:17 那通 43 分鐘的電話是誰發起的？", opts: ["你", "LJY"], ans: 0, note: "紀錄顯示是你主動打給燒杯的。" },
-            { q: "當 LJY 叫你「先別急」，是因為她在等？", opts: ["你回覆", "早餐", "洗澡", "睡覺"], ans: 1, note: "她在等她的光速早餐。" },
-            { q: "11/14 13:46 你敲她的第一句話是？", opts: ["早安", "怎了", "想我嗎", "在幹嘛"], ans: 1, note: "『怎了』。" },
-            { q: "LJY 的蛋餅口味是什麼？", opts: ["原味", "蔬菜", "起司", "鮪魚"], ans: 1, note: "是『蔬菜蛋餅』。" },
-            { q: "11/15 凌晨 00:35 LJY 第一句開場白？", opts: ["在嗎", "想你", "聽得到嗎", "嘿"], ans: 2, note: "她問：『聽得到嗎』。" },
-            { q: "你連續傳兩個貼圖的時間是？", opts: ["03:29", "10:01", "13:46", "20:18"], ans: 0, note: "凌晨三點二十九分。" },
-            { q: "這份測驗完成後，你要對燒杯說什麼？", opts: ["我錯了", "我是滴管", "再打一通電話", "以上皆是"], ans: 3, note: "這是求生欲測試！" },
-            { q: "你覺得燒杯可愛嗎？", opts: ["普通", "超可愛"], ans: 1, note: "這題選錯就不用下課了。" }
-        ];
-
-        let state = {
-            role: '',
-            questions: [],
-            curr: 0,
-            score: 0,
-            answered: false
-        };
-
-        function initQuiz(role) {
-            state.role = role;
-            state.questions = role === 'female' ? femaleData : maleData;
-            state.curr = 0;
-            state.score = 0;
-            document.getElementById('page-home').classList.add('hidden');
-            document.getElementById('page-quiz').classList.remove('hidden');
-            document.getElementById('role-indicator').innerText = role === 'female' ? '燒杯專場' : '滴管專場';
-            renderQ();
-        }
-
-        function renderQ() {
-            state.answered = false;
-            const q = state.questions[state.curr];
-            document.getElementById('curr-q').innerText = state.curr + 1;
-            document.getElementById('prog-bar').style.width = `${(state.curr / 20) * 100}%`;
-            document.getElementById('score-view').innerText = state.score;
-            
-            const container = document.getElementById('q-box');
-            container.innerHTML = `
-                <div class="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border-b-8 border-pink-100 relative">
-                        <i class="fas fa-quote-left text-pink-100 text-6xl absolute top-4 left-4"></i>
-                        <h3 class="text-xl font-black text-gray-800 mb-8 relative z-10 leading-relaxed">${q.q}</h3>
-                        <div class="grid gap-3 relative z-10">
-                            ${q.opts.map((o, i) => `
-                                <button onclick="checkAns(${i})" id="opt-${i}" class="option-btn w-full text-left p-4 rounded-2xl bg-gray-50 border-gray-100 font-bold hover:bg-pink-50 hover:border-pink-200">
-                                    ${o}
-                                </button>
-                            `).join('')}
-                        </div>
-                        <div id="feedback" class="hidden mt-6 p-4 rounded-2xl text-sm font-bold animate-in zoom-in duration-300"></div>
-                        <button id="btn-next" onclick="nextQ()" class="hidden w-full mt-6 bg-gray-800 text-white py-4 rounded-2xl font-black shadow-lg">下一題 <i class="fas fa-arrow-right ml-1"></i></button>
-                    </div>
+        <div class="main-stage">
+            <div id="prog-header" style="visibility: hidden;">
+                <div class="prog-container">
+                    <div class="prog-bar" id="p-bar"></div>
+                    <div class="prog-icon" id="p-icon">🐶</div>
                 </div>
-            `;
+            </div>
+
+            <div class="scene active" id="scene-welcome" style="text-align:center; justify-content:center;">
+                <h1 style="color: var(--melo-pink); font-size: 42px; font-weight: 900; margin-bottom: 5px;">甜蜜回憶收藏</h1>
+                <p style="color: #a08c8c; font-size: 18px; font-weight: 700;">11/14 - 12/31 我們的專屬時光</p>
+                <div style="margin-top: 40px;">
+                    <button class="start-btn btn-ljy" onclick="begin('ljy')">我是 LJY 🐰</button>
+                    <button class="start-btn btn-lc" onclick="begin('lc')">我是 來財 🐶</button>
+                </div>
+            </div>
+
+            <div class="scene" id="scene-quiz">
+                <div class="q-box" id="q-text"></div>
+                <div class="opt-grid" id="opt-grid"></div>
+                <button class="btn-next" id="btn-next" onclick="nextQ()">下一步 ➔</button>
+            </div>
+
+            <div class="scene" id="scene-result" style="text-align:center; justify-content:center;">
+                <h2 id="res-title" style="color: var(--melo-pink); font-size: 32px; font-weight: 900;"></h2>
+                <div id="res-score" style="font-size: 60px; font-weight: 900; color: var(--text-color); margin: 20px 0;"></div>
+                <button class="start-btn btn-ljy" onclick="location.reload()">再玩一次 🎀</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // 這裡放入真實的聊天記錄題目 (12/31 最新梗)
+    const ljyData = [
+        { q: "12/31 早上，來財開玩笑說你是燒杯，那他覺得自己是？", opts: ["滴管", "攪拌棒", "量筒", "酒精燈"], a: "滴管", e: "🧪" },
+        { q: "來財曾溫情表示你可以一直住在他在心裡，房租是？", opts: ["免房租", "一個親親", "1314元", "幫他寫作業"], a: "免房租", e: "🏠" },
+        { q: "來財說他雖然不富有，但他能給你最貴的東西是？", opts: ["他的真心", "他的時間", "他的存款", "他的電腦"], a: "他的真心", e: "💎" },
+        { q: "來財堅持上課不睡覺，那個有點委屈的原因是？", opts: ["桌子太小趴著不舒服", "老師太兇", "他很愛學習", "怕沒接電話"], a: "桌子太小趴著不舒服", e: "🏫" },
+        { q: "來財自封為「勇敢的小男孩」，是因為他手上有？", opts: ["長繭了", "受傷了", "戒指", "刺青"], a: "長繭了", e: "✋" },
+        { q: "當來財心情悶悶的時候，他最常對你說哪兩個字？", opts: ["很煩", "隨便", "沒事", "想你"], a: "很煩", e: "😤" },
+        { q: "12/1 來財爬樓梯爬到全身濕透，是因為他不想等？", opts: ["電梯", "紅綠燈", "公車", "你的訊息"], a: "電梯", e: "💦" },
+        { q: "來財轉帳買火鍋時，原本想多加哪一個數字送你？", opts: ["0", "1", "5", "8"], a: "0", e: "🧧" },
+        { q: "來財最怕你突然變得很冷淡，對他說出哪一個字？", opts: ["喔", "嗯", "嘖", "蛤"], a: "喔", e: "❄️" },
+        { q: "你們可愛的專屬口訣：蟑螂怕拖鞋，烏龜怕...？", opts: ["鐵鎚", "兔子", "翻身", "縮頭"], a: "鐵鎚", e: "🐢" }
+    ];
+
+    const lcData = [
+        { q: "12/31 早上，LJY 說他要「光速進食」，是為了？", opts: ["去找你、陪你", "去睡覺", "去打遊戲", "去買飲料"], a: "去找你、陪你", e: "🏎️" },
+        { q: "LJY 誇獎自己眼睛很大，是因為眼裡裝滿了誰？", opts: ["滿眼都是你", "星星", "食物", "瞌睡蟲"], a: "滿眼都是你", e: "👀" },
+        { q: "LJY 曾把自己比喻成你的哪一種可愛小動物？", opts: ["小狗", "小豬", "乖乖貓", "兔子"], a: "小狗", e: "🐶" },
+        { q: "LJY 曾說過，如果有一天你不愛了，他會？", opts: ["放你走", "把你抓回來", "哭給你看", "不理你"], a: "放你走", e: "🕊️" },
+        { q: "12/31 跨年早餐，LJY 除了山豬肉吐司還點了什麼？", opts: ["蔬菜蛋餅", "起司蛋餅", "肉鬆蛋餅", "玉米蛋餅"], a: "蔬菜蛋餅", e: "🥪" },
+        { q: "LJY 說他醒了但還是想賴床當一隻？", opts: ["愛睡覺的小豬", "懶惰蟲", "無尾熊", "棉被怪"], a: "愛睡覺的小豬", e: "🐷" },
+        { q: "LJY 說他如果喝醉倒在床上的樣子，被戲稱為？", opts: ["酒鬼", "睡美人", "醉貓", "酒仙"], a: "酒鬼", e: "🍷" },
+        { q: "LJY 怕房間聲音太大，會不小心被誰聽到？", opts: ["隔壁房的人", "房東", "你媽", "室友"], a: "隔壁房的人", e: "🤫" },
+        { q: "LJY 打麻將時，為了讓你安心，強調跟誰打？", opts: ["女生朋友", "男生", "長輩", "老師"], a: "女生朋友", e: "🀄" },
+        { q: "LJY 因為什麼東西「還沒寄到」，火鍋局才延後？", opts: ["酒", "杯子", "電烤盤", "火鍋料"], a: "酒", e: "🍾" }
+    ];
+
+    let currentList = [];
+    let curIdx = 0;
+    let score = 0;
+
+    function begin(role) {
+        currentList = role === 'ljy' ? ljyData : lcData;
+        document.getElementById('scene-welcome').classList.remove('active');
+        document.getElementById('scene-quiz').classList.add('active');
+        document.getElementById('prog-header').style.visibility = 'visible';
+        document.getElementById('side-emoji').innerText = role === 'ljy' ? '🐰' : '🐶';
+        document.getElementById('p-icon').innerText = role === 'ljy' ? '🐰' : '🐶';
+        render();
+    }
+
+    function render() {
+        const q = currentList[curIdx];
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('side-emoji').innerText = q.e;
+        
+        const grid = document.getElementById('opt-grid');
+        grid.innerHTML = '';
+        document.getElementById('btn-next').style.visibility = 'hidden';
+
+        const percent = (curIdx / currentList.length) * 100;
+        document.getElementById('p-bar').style.width = percent + '%';
+        document.getElementById('p-icon').style.left = percent + '%';
+
+        q.opts.forEach(opt => {
+            const el = document.createElement('div');
+            el.className = 'opt-item';
+            el.innerText = opt;
+            el.onclick = () => check(el, opt, q.a);
+            grid.appendChild(el);
+        });
+    }
+
+    function check(el, chosen, correct) {
+        const items = document.querySelectorAll('.opt-item');
+        items.forEach(i => i.style.pointerEvents = 'none');
+
+        if(chosen === correct) {
+            el.classList.add('correct');
+            score++;
+            const badges = document.getElementById('badge-wall').children;
+            if(curIdx < badges.length) badges[curIdx].style.opacity = '1';
+        } else {
+            el.classList.add('wrong');
+            items.forEach(i => { if(i.innerText === correct) i.classList.add('correct'); });
         }
+        document.getElementById('btn-next').style.visibility = 'visible';
+    }
 
-        function checkAns(idx) {
-            if (state.answered) return;
-            state.answered = true;
-            
-            const q = state.questions[state.curr];
-            const isCorrect = idx === q.ans;
-            const card = document.querySelector('#q-box > div > div');
+    function nextQ() {
+        curIdx++;
+        if(curIdx < currentList.length) render();
+        else showRes();
+    }
 
-            if (isCorrect) {
-                state.score += 5;
-                // 答對時的小慶祝
-                confetti({ particleCount: 30, spread: 60, origin: { y: 0.7 }, colors: ['#ec4899', '#f472b6'], disableForReducedMotion: true });
-            } else {
-                // 答錯時的震動回饋
-                card.classList.add('shake');
-                setTimeout(() => card.classList.remove('shake'), 400);
-            }
-
-            q.opts.forEach((_, i) => {
-                const btn = document.getElementById(`opt-${i}`);
-                btn.disabled = true;
-                if (i === q.ans) {
-                    btn.className = "option-btn w-full text-left p-4 rounded-2xl bg-green-50 border-green-500 text-green-700 font-black";
-                } else if (i === idx) {
-                    btn.className = "option-btn w-full text-left p-4 rounded-2xl bg-red-50 border-red-500 text-red-700 font-black";
-                } else {
-                    btn.className = "option-btn w-full text-left p-4 rounded-2xl bg-gray-50 border-transparent text-gray-300 opacity-50";
-                }
-            });
-
-            const fb = document.getElementById('feedback');
-            fb.classList.remove('hidden');
-            fb.className = `mt-6 p-4 rounded-2xl text-sm font-bold ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
-            fb.innerHTML = `<i class="fas ${isCorrect ? 'fa-check-circle' : 'fa-times-circle'} mr-2"></i> ${q.note}`;
-            
-            document.getElementById('btn-next').classList.remove('hidden');
-            document.getElementById('score-view').innerText = state.score;
-        }
-
-        function nextQ() {
-            if (state.curr < 19) {
-                state.curr++;
-                renderQ();
-            } else {
-                showResult();
-            }
-        }
-
-        function showResult() {
-            document.getElementById('page-quiz').classList.add('hidden');
-            document.getElementById('page-result').classList.remove('hidden');
-            document.getElementById('result-score').innerText = state.score;
-            
-            // 結算時的慶祝動畫 (若分數不錯)
-            if (state.score >= 60) {
-                const duration = 3000;
-                const end = Date.now() + duration;
-                (function frame() {
-                    confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ec4899', '#fbcfe8'] });
-                    confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ec4899', '#fbcfe8'] });
-                    if (Date.now() < end) {
-                        requestAnimationFrame(frame);
-                    }
-                }());
-            }
-
-            let txt = "";
-            if (state.score === 100) txt = "完美！你們根本是同一個大腦，滴管與燒杯永遠不分離！";
-            else if (state.score >= 80) txt = "默契超好！看來你們真的很愛打電話講一個半小時。";
-            else if (state.score >= 60) txt = "還行，但有些細節要再去翻一下對話記錄喔！";
-            else txt = "零分！罰你們現在立刻互打一通長電話複習回憶！";
-            document.getElementById('result-text').innerText = txt;
-        }
-    </script>
+    function showRes() {
+        document.getElementById('scene-quiz').classList.remove('active');
+        document.getElementById('scene-result').classList.add('active');
+        document.getElementById('prog-header').style.visibility = 'hidden';
+        document.getElementById('res-score').innerText = `${score} / ${currentList.length}`;
+        document.getElementById('res-title').innerText = score > 7 ? "超級通靈寶貝！💖" : "要再多多抱抱我喔 🧸";
+    }
+</script>
 </body>
 </html>
